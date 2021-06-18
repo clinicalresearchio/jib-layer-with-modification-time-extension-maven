@@ -1,0 +1,34 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <profiles>
+    <profile>
+      <id>crio-registry</id>
+
+      <properties>
+        <crioRepositoryUrl>
+          artifactregistry://us-east1-maven.pkg.dev/crio-dev-267118/maven
+        </crioRepositoryUrl>
+        <altDeploymentRepository>artifact-registry::default::${crioRepositoryUrl}</altDeploymentRepository>
+        <altSnapshotDeploymentRepository>snapshots::default::${crioRepositoryUrl}</altSnapshotDeploymentRepository>
+        <altReleaseDeploymentRepository>releases::default::${crioRepositoryUrl}</altReleaseDeploymentRepository>
+      </properties>
+
+      <repositories>
+        <repository>
+          <id>artifact-registry</id>
+          <url>artifactregistry://us-east1-maven.pkg.dev/crio-dev-267118/maven</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>crio-registry</activeProfile>
+  </activeProfiles>
+</settings>

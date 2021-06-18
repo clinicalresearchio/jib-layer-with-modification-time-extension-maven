@@ -6,6 +6,7 @@ import com.google.cloud.tools.jib.maven.extension.MavenData;
 import com.google.cloud.tools.jib.plugins.extension.ExtensionLogger;
 
 import java.nio.file.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,9 +33,9 @@ public class LayerWithModificationTimeJibExtension implements JibMavenPluginExte
     private ContainerBuildPlan extendContainerBuildPlan(Configuration extraConfig,
                                                         ContainerBuildPlan containerBuildPlan,
                                                         MavenData mavenData) {
-        var planBuilder = containerBuildPlan.toBuilder().setLayers(new ArrayList<>());
-        var newLayerEntryMatchers = getPathMatchersForNewLayerEntries(extraConfig);
-        var originalLayers = (List<FileEntriesLayer>) containerBuildPlan.getLayers();
+        ContainerBuildPlan.Builder planBuilder = containerBuildPlan.toBuilder().setLayers(new ArrayList<>());
+        List<PathMatcher> newLayerEntryMatchers = getPathMatchersForNewLayerEntries(extraConfig);
+        List<FileEntriesLayer> originalLayers = (List<FileEntriesLayer>) containerBuildPlan.getLayers();
         adjustAndAddLayersToPlan(originalLayers, mavenData, newLayerEntryMatchers, planBuilder);
 
         return planBuilder.build();
@@ -52,10 +53,10 @@ public class LayerWithModificationTimeJibExtension implements JibMavenPluginExte
                                           MavenData mavenData,
                                           List<PathMatcher> newLayerEntryMatchers,
                                           ContainerBuildPlan.Builder planBuilder) {
-        var layerWithModificationTimeEntries = new ArrayList<FileEntry>();
+        List<FileEntry> layerWithModificationTimeEntries = new ArrayList<FileEntry>();
 
         originalLayers.forEach(layer -> {
-            var separatedEntries = separateEntriesFrom(layer, newLayerEntryMatchers);
+            SeparatedLayerEntries separatedEntries = separateEntriesFrom(layer, newLayerEntryMatchers);
             addLayerToPlan(layer.getName(), separatedEntries.getRetainedOriginalLayerEntries(), planBuilder);
             layerWithModificationTimeEntries.addAll(separatedEntries.getLayerWithModificationTimeEntries());
         });
@@ -65,8 +66,8 @@ public class LayerWithModificationTimeJibExtension implements JibMavenPluginExte
 
     private SeparatedLayerEntries separateEntriesFrom(FileEntriesLayer layer,
                                                       List<PathMatcher> layerWithModificationTimeEntryPathMatchers) {
-        var retainedOriginalLayerEntries = new ArrayList<FileEntry>();
-        var layerWithModificationTimeEntries = new ArrayList<FileEntry>();
+        List<FileEntry> retainedOriginalLayerEntries = new ArrayList<FileEntry>();
+        List<FileEntry> layerWithModificationTimeEntries = new ArrayList<FileEntry>();
 
         for (FileEntry fileEntry : layer.getEntries()) {
             if (shouldBeMovedToLayerWithModificationTime(fileEntry, layerWithModificationTimeEntryPathMatchers)) {
@@ -99,8 +100,8 @@ public class LayerWithModificationTimeJibExtension implements JibMavenPluginExte
     private void addLayerWithModificationTime(MavenData mavenData,
                                               List<FileEntry> modifiedLayerEntries,
                                               ContainerBuildPlan.Builder planBuilder) {
-        var buildTime = mavenData.getMavenSession().getStartTime().toInstant();
-        var entries = modifiedLayerEntries.stream()
+        Instant buildTime = mavenData.getMavenSession().getStartTime().toInstant();
+        List<FileEntry> entries = modifiedLayerEntries.stream()
                                           .map(entry -> FileEntryFactory.createWithModificationTime(entry, buildTime))
                                           .collect(Collectors.toList());
         addLayerToPlan(LAYER_WITH_MODIFICATION_TIME_NAME, entries, planBuilder);

@@ -23,29 +23,30 @@ class LayerWithModificationTimeJibExtensionTest {
     @Test
     void shouldMoveToModifiedLayer() {
         // given
-        var givenConfiguration = givenConfiguration("**/a.*");
-        var givenMavenData = givenMavenData(LAST_MODIFICATION_TIME);
-        var givenExtension = new LayerWithModificationTimeJibExtension();
-        var givenBuildPlan = createContainerBuildPlan(
-                new LinkedHashMap<>() {{
-                    put("layer1", List.of("/layer1/a.file", "/layer1/b.file", "/layer1/c.file"));
-                    put("layer2", List.of("/layer2/d.file", "/layer2/e.file"));
-                    put("layer3", List.of("/layer3/f.file"));
+        Configuration givenConfiguration = givenConfiguration("**/a.*");
+        MavenData givenMavenData = givenMavenData(LAST_MODIFICATION_TIME);
+        LayerWithModificationTimeJibExtension givenExtension = new LayerWithModificationTimeJibExtension();
+        ContainerBuildPlan givenBuildPlan = createContainerBuildPlan(
+                new LinkedHashMap<String, List<String>>() {{
+                    put("layer1", Arrays.asList("/layer1/a.file", "/layer1/b.file", "/layer1/c.file"));
+                    put("layer2", Arrays.asList("/layer2/d.file", "/layer2/e.file"));
+                    put("layer3", Arrays.asList("/layer3/f.file"));
                 }}
         );
 
         // when
-        var actual = givenExtension.extendContainerBuildPlan(givenBuildPlan, null, Optional.of(givenConfiguration),
-                                                             givenMavenData, null);
+        ContainerBuildPlan actual = givenExtension.extendContainerBuildPlan(
+                givenBuildPlan, null, Optional.of(givenConfiguration),
+                givenMavenData, null);
 
         // then
-        var expectedLayerMap = new LinkedHashMap<String, List<String>>() {{
-            put("layer1", List.of("/layer1/b.file", "/layer1/c.file"));
-            put("layer2", List.of("/layer2/d.file", "/layer2/e.file"));
-            put("layer3", List.of("/layer3/f.file"));
+        LinkedHashMap<String, List<String>> expectedLayerMap = new LinkedHashMap<String, List<String>>() {{
+            put("layer1", Arrays.asList("/layer1/b.file", "/layer1/c.file"));
+            put("layer2", Arrays.asList("/layer2/d.file", "/layer2/e.file"));
+            put("layer3", Arrays.asList("/layer3/f.file"));
         }};
-        var expectedModifiedLayerFiles = List.of("/layer1/a.file");
-        var expected = createContainerBuildPlan(expectedLayerMap, expectedModifiedLayerFiles);
+        List<String> expectedModifiedLayerFiles = Arrays.asList("/layer1/a.file");
+        ContainerBuildPlan expected = createContainerBuildPlan(expectedLayerMap, expectedModifiedLayerFiles);
         then(actual).usingRecursiveComparison()
                     .isEqualTo(expected);
     }
@@ -53,29 +54,29 @@ class LayerWithModificationTimeJibExtensionTest {
     @Test
     void shouldMoveMultipleToModifiedLayer() {
         // given
-        var givenConfiguration = new Configuration(List.of("**/a.file", "**/d.file"));
-        var givenMavenData = givenMavenData(LAST_MODIFICATION_TIME);
-        var givenExtension = new LayerWithModificationTimeJibExtension();
-        var givenBuildPlan = createContainerBuildPlan(
-                new LinkedHashMap<>() {{
-                    put("layer1", List.of("/layer1/a.file", "/layer1/b.file", "/layer1/c.file"));
-                    put("layer2", List.of("/layer2/d.file", "/layer2/e.file"));
-                    put("layer3", List.of("/layer3/f.file"));
+        Configuration givenConfiguration = new Configuration(Arrays.asList("**/a.file", "**/d.file"));
+        MavenData givenMavenData = givenMavenData(LAST_MODIFICATION_TIME);
+        LayerWithModificationTimeJibExtension givenExtension = new LayerWithModificationTimeJibExtension();
+        ContainerBuildPlan givenBuildPlan = createContainerBuildPlan(
+                new LinkedHashMap<String, List<String>>() {{
+                    put("layer1", Arrays.asList("/layer1/a.file", "/layer1/b.file", "/layer1/c.file"));
+                    put("layer2", Arrays.asList("/layer2/d.file", "/layer2/e.file"));
+                    put("layer3", Arrays.asList("/layer3/f.file"));
                 }}
         );
 
         // when
-        var actual = givenExtension.extendContainerBuildPlan(givenBuildPlan, null, Optional.of(givenConfiguration),
+        ContainerBuildPlan actual = givenExtension.extendContainerBuildPlan(givenBuildPlan, null, Optional.of(givenConfiguration),
                                                              givenMavenData, null);
 
         // then
-        var expectedLayerMap = new LinkedHashMap<String, List<String>>() {{
-            put("layer1", List.of("/layer1/b.file", "/layer1/c.file"));
-            put("layer2", List.of("/layer2/e.file"));
-            put("layer3", List.of("/layer3/f.file"));
+        LinkedHashMap<String, List<String>> expectedLayerMap = new LinkedHashMap<String, List<String>>() {{
+            put("layer1", Arrays.asList("/layer1/b.file", "/layer1/c.file"));
+            put("layer2", Arrays.asList("/layer2/e.file"));
+            put("layer3", Arrays.asList("/layer3/f.file"));
         }};
-        var expectedModifiedLayerFiles = List.of("/layer1/a.file", "/layer2/d.file");
-        var expected = createContainerBuildPlan(expectedLayerMap, expectedModifiedLayerFiles);
+        List<String> expectedModifiedLayerFiles = Arrays.asList("/layer1/a.file", "/layer2/d.file");
+        ContainerBuildPlan expected = createContainerBuildPlan(expectedLayerMap, expectedModifiedLayerFiles);
         then(actual).usingRecursiveComparison()
                     .isEqualTo(expected);
     }
@@ -83,26 +84,26 @@ class LayerWithModificationTimeJibExtensionTest {
     @Test
     void shouldRemoveEmptyLayer() {
         // given
-        var givenConfiguration = givenConfiguration("**/b.file");
-        var givenMavenData = givenMavenData(LAST_MODIFICATION_TIME);
-        var givenExtension = new LayerWithModificationTimeJibExtension();
-        var givenBuildPlan = createContainerBuildPlan(
-                new LinkedHashMap<>() {{
-                    put("layer1", List.of("/data/a.file"));
-                    put("layer2", List.of("/data/b.file"));
+        Configuration givenConfiguration = givenConfiguration("**/b.file");
+        MavenData givenMavenData = givenMavenData(LAST_MODIFICATION_TIME);
+        LayerWithModificationTimeJibExtension givenExtension = new LayerWithModificationTimeJibExtension();
+        ContainerBuildPlan givenBuildPlan = createContainerBuildPlan(
+                new LinkedHashMap<String, List<String>>() {{
+                    put("layer1", Arrays.asList("/data/a.file"));
+                    put("layer2", Arrays.asList("/data/b.file"));
                 }}
         );
 
         // when
-        var actual = givenExtension.extendContainerBuildPlan(givenBuildPlan, null, Optional.of(givenConfiguration),
+        ContainerBuildPlan actual = givenExtension.extendContainerBuildPlan(givenBuildPlan, null, Optional.of(givenConfiguration),
                                                              givenMavenData, null);
 
         // then
-        var expectedLayerMap = new LinkedHashMap<String, List<String>>() {{
-            put("layer1", List.of("/data/a.file"));
+        LinkedHashMap<String, List<String>> expectedLayerMap = new LinkedHashMap<String, List<String>>() {{
+            put("layer1", Arrays.asList("/data/a.file"));
         }};
-        var expectedModifiedLayerFiles = List.of("/data/b.file");
-        var expected = createContainerBuildPlan(expectedLayerMap, expectedModifiedLayerFiles);
+        List<String> expectedModifiedLayerFiles = Arrays.asList("/data/b.file");
+        ContainerBuildPlan expected = createContainerBuildPlan(expectedLayerMap, expectedModifiedLayerFiles);
         then(actual).usingRecursiveComparison()
                     .isEqualTo(expected);
     }
@@ -110,11 +111,11 @@ class LayerWithModificationTimeJibExtensionTest {
     @Test
     void shouldDoNoModificationsWhenNoConfiguration() {
         // given
-        var givenBuildPlan = givenDefaultBuildPlan();
-        var givenExtension = new LayerWithModificationTimeJibExtension();
+        ContainerBuildPlan givenBuildPlan = givenDefaultBuildPlan();
+        LayerWithModificationTimeJibExtension givenExtension = new LayerWithModificationTimeJibExtension();
 
         // when
-        var actual = givenExtension.extendContainerBuildPlan(givenBuildPlan, null, Optional.empty(), null, null);
+        ContainerBuildPlan actual = givenExtension.extendContainerBuildPlan(givenBuildPlan, null, Optional.empty(), null, null);
 
         // then
         then(actual).isEqualTo(givenBuildPlan);
@@ -123,12 +124,12 @@ class LayerWithModificationTimeJibExtensionTest {
     @Test
     void shouldDoNoModificationsWhenNoFilters() {
         // given
-        var givenBuildPlan = ContainerBuildPlan.builder().build();
-        var givenExtension = new LayerWithModificationTimeJibExtension();
-        var givenConfiguration = new Configuration();
+        ContainerBuildPlan givenBuildPlan = ContainerBuildPlan.builder().build();
+        LayerWithModificationTimeJibExtension givenExtension = new LayerWithModificationTimeJibExtension();
+        Configuration givenConfiguration = new Configuration();
 
         // when
-        var actual = givenExtension.extendContainerBuildPlan(givenBuildPlan, null, Optional.of(givenConfiguration),
+        ContainerBuildPlan actual = givenExtension.extendContainerBuildPlan(givenBuildPlan, null, Optional.of(givenConfiguration),
                                                              null, null);
 
         // then
@@ -137,28 +138,28 @@ class LayerWithModificationTimeJibExtensionTest {
 
     private ContainerBuildPlan givenDefaultBuildPlan() {
         new LinkedHashMap<String, List<String>>() {{
-            put("layer1", List.of("/layer1/a.file", "/layer1/b.file", "/layer1/c.file"));
-            put("layer2", List.of("/layer2/d.file", "/layer2/e.file"));
-            put("layer3", List.of("/layer3/f.file"));
+            put("layer1", Arrays.asList("/layer1/a.file", "/layer1/b.file", "/layer1/c.file"));
+            put("layer2", Arrays.asList("/layer2/d.file", "/layer2/e.file"));
+            put("layer3", Arrays.asList("/layer3/f.file"));
         }};
 
-        var map = new LinkedHashMap<String, List<String>>();
-        map.put("layer1", List.of("/layer1/a.file", "/layer1/b.file", "/layer1/c.file"));
-        map.put("layer2", List.of("/layer2/d.file", "/layer2/e.file"));
-        map.put("layer3", List.of("/layer3/f.file"));
-        return createContainerBuildPlan(map, List.of());
+        LinkedHashMap<String, List<String>> map = new LinkedHashMap<String, List<String>>();
+        map.put("layer1", Arrays.asList("/layer1/a.file", "/layer1/b.file", "/layer1/c.file"));
+        map.put("layer2", Arrays.asList("/layer2/d.file", "/layer2/e.file"));
+        map.put("layer3", Arrays.asList("/layer3/f.file"));
+        return createContainerBuildPlan(map, Arrays.asList());
     }
 
     private ContainerBuildPlan createContainerBuildPlan(LinkedHashMap<String, List<String>> layersToFilePaths) {
-        return createContainerBuildPlan(layersToFilePaths, List.of());
+        return createContainerBuildPlan(layersToFilePaths, Arrays.asList());
     }
 
     private ContainerBuildPlan createContainerBuildPlan(LinkedHashMap<String, List<String>> layersToFilePaths,
                                                         List<String> modifiedPaths) {
-        var containerBuildPlanBuilder = ContainerBuildPlan.builder();
+        ContainerBuildPlan.Builder containerBuildPlanBuilder = ContainerBuildPlan.builder();
 
-        for (var layerData : layersToFilePaths.entrySet()) {
-            var layerBuilder = FileEntriesLayer.builder().setName(layerData.getKey());
+        for (Map.Entry<String, List<String>> layerData : layersToFilePaths.entrySet()) {
+            FileEntriesLayer.Builder layerBuilder = FileEntriesLayer.builder().setName(layerData.getKey());
             layerData.getValue()
                      .stream()
                      .filter(path -> !modifiedPaths.contains(path))
@@ -169,10 +170,10 @@ class LayerWithModificationTimeJibExtensionTest {
         }
 
         if (!modifiedPaths.isEmpty()) {
-            var modifiedEntries = modifiedPaths.stream()
+            List<FileEntry> modifiedEntries = modifiedPaths.stream()
                                                .map(path -> givenFileEntry(Paths.get(path), LAST_MODIFICATION_TIME))
                                                .collect(Collectors.toList());
-            var modifiedLayer = FileEntriesLayer.builder()
+            FileEntriesLayer modifiedLayer = FileEntriesLayer.builder()
                                                 .setName(LAYER_WITH_MODIFICATION_TIME_NAME)
                                                 .setEntries(modifiedEntries)
                                                 .build();
@@ -192,13 +193,13 @@ class LayerWithModificationTimeJibExtensionTest {
     }
 
     private Configuration givenConfiguration(String filter) {
-        return new Configuration(List.of(filter));
+        return new Configuration(Arrays.asList(filter));
     }
 
     private MavenData givenMavenData(Instant instant) {
-        var mavenSession = Mockito.mock(MavenSession.class);
+        MavenSession mavenSession = Mockito.mock(MavenSession.class);
         BDDMockito.given(mavenSession.getStartTime()).willReturn(new Date(instant.toEpochMilli()));
-        var mavenData = Mockito.mock(MavenData.class);
+        MavenData mavenData = Mockito.mock(MavenData.class);
         BDDMockito.given(mavenData.getMavenSession()).willReturn(mavenSession);
         return mavenData;
     }
