@@ -1,0 +1,32 @@
+name: Build and Deploy to Artifact Registry
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, crio-appstack]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v.4.5
+        with:
+          maven-version: 3.9.1
+      - name: Set up gcloud Cloud SDK environment
+        uses: google-github-actions/setup-gcloud@v1.1.0
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1.1.1'
+        with:
+          credentials_json: ${{ secrets.CRIO_GAC_TOKEN }}      
+      - name: Build and Deploy
+        run: |
+          find ./ -type f -name \*.xml -exec sed -i 's/crio-dev-267118/crio-global/g' {} \;
+          mvn -s .mvn/internal-repo-settings.xml -Dmaven.repo.local=.cache/.m2 clean deploy
