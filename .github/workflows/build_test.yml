@@ -1,0 +1,19 @@
+name: Build and test
+on:
+  push:
+  branches:
+    - master
+    - release
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    uses: clinicalresearchio/workflows/.github/workflows/test_java.yaml@main
+    secrets: inherit
+    with:
+      environment: ${{ github.ref_name }}
+      event: ${{ github.event_name }}
+      app_name: jib-layer-with-modification-time-extension-maven
+      run_number: ${{ github.run_number }}
+      java_version: 11
